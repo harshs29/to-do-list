@@ -14,7 +14,7 @@ function App() {
   // ==========================
   const getTodos = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:5000/todos");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/todos`);
       setTodos(response.data);
     } catch (error) {
       console.log(error);
@@ -34,7 +34,7 @@ function App() {
     if (task.trim() === "") return;
 
     try {
-      await axios.post("http://127.0.0.1:5000/todos", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/todos`, {
         task: task,
       });
 
@@ -51,7 +51,7 @@ function App() {
   // ==========================
   const updateTodo = async (id) => {
     try {
-      await axios.put(`http://127.0.0.1:5000/todos/${id}`);
+      await axios.put(`${import.meta.env.VITE_API_URL}/todos/${id}`);
       getTodos();
     } catch (error) {
       console.log(error);
@@ -64,7 +64,7 @@ function App() {
   // ==========================
   const deleteTodo = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:5000/todos/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/todos/${id}`);
       getTodos();
     } catch (error) {
       console.log(error);
