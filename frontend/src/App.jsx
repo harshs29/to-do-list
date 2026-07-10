@@ -1,79 +1,73 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function App() {
-  // Stores all todos from backend
-  const [todos, setTodos] = useState([]);
+// Use environment variable if available, otherwise use /api
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
-  // Stores input task
+function App() {
+  const [todos, setTodos] = useState([]);
   const [task, setTask] = useState("");
 
   // ==========================
-  // GET API
-  // Fetch all todos
+  // GET TODOS
   // ==========================
   const getTodos = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/todos`);
+      const response = await axios.get(`${API_URL}/todos`);
       setTodos(response.data);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching todos:", error);
     }
   };
 
-  // Load todos when page opens
   useEffect(() => {
     getTodos();
   }, []);
 
   // ==========================
-  // POST API
-  // Add new task
+  // ADD TODO
   // ==========================
   const addTodo = async () => {
-    if (task.trim() === "") return;
+    if (!task.trim()) return;
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/todos`, {
-        task: task,
+      await axios.post(`${API_URL}/todos`, {
+        task,
       });
 
       setTask("");
       getTodos();
     } catch (error) {
-      console.log(error);
+      console.error("Error adding todo:", error);
     }
   };
 
   // ==========================
-  // PUT API
-  // Update task status
+  // UPDATE TODO
   // ==========================
   const updateTodo = async (id) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/todos/${id}`);
+      await axios.put(`${API_URL}/todos/${id}`);
       getTodos();
     } catch (error) {
-      console.log(error);
+      console.error("Error updating todo:", error);
     }
   };
 
   // ==========================
-  // DELETE API
-  // Delete task
+  // DELETE TODO
   // ==========================
   const deleteTodo = async (id) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/todos/${id}`);
+      await axios.delete(`${API_URL}/todos/${id}`);
       getTodos();
     } catch (error) {
-      console.log(error);
+      console.error("Error deleting todo:", error);
     }
   };
 
   return (
     <div className="container">
-
       <h1>📝 My Todo App</h1>
 
       <p className="count">
@@ -93,53 +87,40 @@ function App() {
         </button>
       </div>
 
-      {
-        todos.length === 0 ? (
+      {todos.length === 0 ? (
+        <div className="empty">
+          No Tasks Available 😊
+        </div>
+      ) : (
+        todos.map((todo) => (
+          <div className="todo-card" key={todo.id}>
+            <h3>{todo.task}</h3>
 
-          <div className="empty">
-            No Tasks Available 😊
-          </div>
+            <p>
+              Status :
+              <span className={todo.status ? "completed" : "pending"}>
+                {todo.status ? " Completed ✅" : " Pending ⏳"}
+              </span>
+            </p>
 
-        ) : (
+            <div className="button-group">
+              <button
+                className="complete-btn"
+                onClick={() => updateTodo(todo.id)}
+              >
+                {todo.status ? "Undo" : "Complete"}
+              </button>
 
-          todos.map((todo) => (
-
-            <div className="todo-card" key={todo.id}>
-
-              <h3>{todo.task}</h3>
-
-              <p>
-                Status :
-                <span className={todo.status ? "completed" : "pending"}>
-                  {todo.status ? " Completed ✅" : " Pending ⏳"}
-                </span>
-              </p>
-
-              <div className="button-group">
-
-                <button
-                  className="complete-btn"
-                  onClick={() => updateTodo(todo.id)}
-                >
-                  {todo.status ? "Undo" : "Complete"}
-                </button>
-
-                <button
-                  className="delete-btn"
-                  onClick={() => deleteTodo(todo.id)}
-                >
-                  Delete
-                </button>
-
-              </div>
-
+              <button
+                className="delete-btn"
+                onClick={() => deleteTodo(todo.id)}
+              >
+                Delete
+              </button>
             </div>
-
-          ))
-
-        )
-      }
-
+          </div>
+        ))
+      )}
     </div>
   );
 }
